@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/15 01:18:53 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/15 19:42:26 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,3 +305,114 @@ These exercises should help you practice using the fork() function in various sc
 // 		close(fd[0]);
 // 	}
 // }
+
+// int	main(void)
+// {
+// 	int	fd[2];
+// 	if (pipe(fd) == -1)
+// 		CustomError("Pipe creation failed.");
+
+// 	int pid = fork();
+// 	if (pid != 0)
+// 	{
+// 		close(fd[0]);
+// 		char c = 49;
+// 		while (c <= '9')
+// 		{
+// 			write(fd[1], &c, 1);
+// 			c++;
+// 		}
+// 		close(fd[1]);
+// 		exit(0);
+// 	}
+// 	else
+// 	{
+// 		close(fd[1]);
+// 		sleep(1);
+// 		char *str[10];
+// 		int i = 0;
+// 		while (i < 9)
+// 			read(fd[0], str[i++], 1);
+// 		i = 1;
+// 		close(fd[0]);
+// 		int n;
+// 		while (i <= 9)
+// 		{
+// 			n += atoi(str[i]);
+// 			i++;
+			
+// 		}
+// 		printf("The sum is: %i", n);
+// 	}
+//}
+
+// int	main(void)
+// {
+// 	int fd[2];
+// 	if (pipe(fd) == -1)
+// 		CustomError("Pipe creation failed");
+	
+// 	int pid = fork();
+// 	if (pid == -1)
+// 		CustomError("Fork creation failed.");
+	
+// 	if (pid == 0)
+// 	{
+// 		close(fd[1]);
+// 		char str[12];
+// 		read(fd[0], str, 12);
+// 		for (int i = 0; str[i]; i++)
+// 		{
+// 			if (str[i] >= 'a' && str[i] <= 'z')
+// 				str[i] = str[i] - 32;
+// 		}
+// 		printf("%s\n", str);
+// 		close(fd[0]);
+// 	}
+// 	else
+// 	{
+// 		close(fd[0]);
+// 		char *str = "hello world\0";
+// 		write(fd[1], str, 12);
+// 		close(fd[1]);
+// 	}
+// }
+
+// Certainly! Here are some exercises to practice using the execve() function in C. In addition to execve(), you can use other basic C functions like printf(), wait(), fork(), exit(), and strcpy(). Remember to include the necessary header files (stdio.h, unistd.h, sys/types.h, sys/wait.h, stdlib.h, string.h, etc.) for each exercise.
+
+// Exercise 1:
+// Write a program that uses execve() to execute the ls command. The program should provide the path to the ls command and pass appropriate arguments to list the contents of the current directory.
+
+// Exercise 2:
+// Write a program that creates a child process using fork(). The child process should use execve() to execute a different program, such as echo, with a custom message. The parent process should wait for the child process to finish and then print "Child process completed".
+
+// Exercise 3:
+// Write a program that creates a child process using fork(). The child process should execute a program that you compile separately (e.g., a simple C program). The parent process should wait for the child process to finish and then print "Child process completed".
+
+// Exercise 4:
+// Write a program that reads a command from the user and uses execve() to execute that command. The program should parse the user input to separate the command and its arguments, and then pass them to execve().
+
+// Exercise 5:
+// Write a program that reads a command from the user and uses execve() to execute that command with additional environment variables. The program should allow the user to input the environment variables and pass them to execve().
+
+// Exercise 6:
+// Write a program that uses execve() to execute a shell script (e.g., a file with a .sh extension). The program should provide the path to the shell script and pass appropriate arguments if required.
+
+// These exercises should help you practice using the execve() function to execute external programs and scripts in various scenarios. Feel free to modify or extend them to further explore the versatility of execve() in C
+
+// int	main(int argc, char **argv)
+// {
+// 	if (argc == 1)
+// 		return 1;
+// 	char str[] = "/usr/lib/";
+// 	strcat(str, argv[1]);
+// 	execve(str, argv + 1, NULL);
+// }
+
+
+int	main(void)
+{
+	char *str = malloc(7); 
+	read(0, str, 5);
+	printf("%s\n", str);
+}
