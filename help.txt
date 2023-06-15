@@ -1,0 +1,49 @@
+• open, close, read, write,
+malloc, free, perror,
+strerror, access, dup, dup2,
+execve, exit, fork, pipe,
+unlink, wait, waitpid
+• ft_printf and any equivalent
+YOU coded
+
+
+perror - print a system error message
+	void perror(const char *s);
+
+strerror - return string describing error number
+	char *strerror(int errnum);
+
+access, faccessat, faccessat2 - check user's permissions for a file
+	int access(const char *pathname, int mode);
+
+dup, dup2 - duplicate a file descriptor
+       int dup(int oldfd);
+       int dup2(int oldfd, int newfd)
+       
+execve - execute program
+	int execve(const char *pathname, char *const argv[], char *const envp[]);
+	
+fork - create a child process
+       pid_t fork(void);
+       
+pipe - create pipe
+SYNOPSIS
+       #include <unistd.h>
+
+       /* On Alpha, IA-64, MIPS, SuperH, and SPARC/SPARC64; see NOTES */
+       struct fd_pair {
+           long fd[2];
+       };
+       struct fd_pair pipe();
+
+       /* On all other architectures */
+       int pipe(int pipefd[2]);
+       
+unlink - call the unlink function to remove the specified file
+       unlink FILE
+       unlink OPTION
+
+wait, waitpid - wait for process to change state
+
+       pid_t wait(int *wstatus);
+       pid_t waitpid(pid_t pid, int *wstatus, int options);
