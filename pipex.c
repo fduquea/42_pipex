@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/15 01:02:43 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/15 01:06:24 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,6 +199,8 @@ int	main(void)
 		close(fd[1]);
 		read(fd[0], &str, 100);
 		printf("%s\n", str);
+		close(fd[0]);
+		exit(0);
 	}
 	else
 	{
