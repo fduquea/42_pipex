@@ -1,21 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test.c                                             :+:      :+:    :+:   */
+/*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/15 13:12:33 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/15 13:23:33 by fduque-a         ###   ########.fr       */
+/*   Created: 2023/06/14 13:05:49 by fduque-a          #+#    #+#             */
+/*   Updated: 2023/06/16 13:32:46 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#ifndef PIPEX_H
+#define PIPEX_H
 
-int	main(int argc, char **argv)
-{
-	if (argc == 1)
-		printf("Please give me a number.\n");
-	if (argc == 2)
-		printf("External program executed with sucess. Code: %c\n", argv[1][0]);
-}
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include "../libft/include/libft.h"
+#include "../libft/include/ft_printf.h"
+
+#endif // PIPEX_H

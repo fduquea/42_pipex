@@ -6,82 +6,11 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/15 19:42:26 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/16 13:52:37 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-void	CustomError(char *str)
-{
-	printf("%s\n", str);
-	exit(0);
-}
-
-int	ft_chrnum(long n)
-{
-	int	i;
-
-	i = 0;
-	if (n < 0)
-	{
-		i++;
-		n = -n;
-	}
-	while (n > 9)
-	{
-		i++;
-		n = n / 10;
-	}
-	i++;
-	return (i);
-}
-
-char	*returners(long abs_n, int charnum, char *dest, int i)
-{
-	while (charnum > i)
-	{
-		if (abs_n > 9)
-		{
-			dest[charnum - 1] = abs_n % 10 + 48;
-			abs_n = abs_n / 10;
-			charnum--;
-		}
-		else
-		{
-			dest[charnum - 1] = abs_n + 48;
-			charnum--;
-		}
-	}
-	return (dest);
-}
-
-char	*ft_itoa(int n)
-{
-	char	*dest;
-	int		charnum;
-	int		j;
-	int		i;
-	long	abs_n;
-
-	abs_n = n;
-	i = 0;
-	charnum = ft_chrnum(abs_n);
-	j = charnum;
-	dest = malloc(sizeof(char) * charnum + 1);
-	if (!dest)
-		return (NULL);
-	if (abs_n < 0)
-	{
-		dest[0] = '-';
-		i = 1;
-		abs_n = -abs_n;
-	}
-	dest = returners(abs_n, charnum, dest, i);
-	dest[j] = '\0';
-	return (dest);
-}
-
 
 // int	main(int argc, char **argv)
 // {
@@ -410,9 +339,178 @@ These exercises should help you practice using the fork() function in various sc
 // }
 
 
-int	main(void)
+
+/*
+
+Idea:
+
+# ./pipex infile cmd1 cmd2 outfile 
+pipe()
+ |
+ |-- fork()
+      |
+      |-- child // cmd1
+      :     |--dup2()
+      :     |--close end[0]
+      :     |--execve(cmd1)
+      :
+      |-- parent // cmd2
+            |--dup2()
+            |--close end[1]
+            |--execve(cmd2)
+
+
+Step to step:
+- take 4 arguments.
+- 1st and 4th are files
+- 2nd and 3rd are shell commands
+- env is the environment, it relies on PATH, that are the paths to the commands binaries
+- 
+
+- read from infile
+- execute cmd1 with infile as input
+- send that output to cmd2
+- execute cmd2 with that output
+- write that to outfile
+
+*/
+
+void	exitError(void)
 {
-	char *str = malloc(7); 
-	read(0, str, 5);
-	printf("%s\n", str);
+	perror("Error");
+	exit(1);
+}
+
+void	printError(char *str)
+{
+	ft_printf("Error: %s\n", str);
+	exit(1);
+}
+
+int	checkEnvp(char **envp)
+{
+	int	i;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strnstr(envp[i], "PATH=", 5) && envp[i][6])
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	**getRealEnvp(char **envp)
+{
+	int		i;
+	char	**res;
+
+	i = 0;
+	while (!(ft_strnstr(envp[i], "PATH=", 5)))
+		i++;
+	res = ft_split(envp[i] + 5, ':');
+	i = 0;
+	while (res[i])
+	{
+		res[i] = ft_strjoin(res[i], "/");
+		i++;
+	}
+	return(res);
+
+}
+
+char	*getPath(char *cmd, char **envp)
+{
+	char *possible_path;
+	int	i;
+
+	i = 0;
+	while (envp[i])
+	{
+		possible_path = ft_strjoin(envp[i], cmd);
+		if (access(possible_path, F_OK))
+			return (possible_path);
+		i++;
+	}
+	return (NULL);
+}
+
+void	executeIt(char *cmd, char **envp)
+{
+	char **cmd_full;
+	char *path;
+	
+	cmd_full = ft_split(cmd, ' ');
+	path = getPath(cmd, envp);
+	if (!path)
+	{
+		ft_split_free(cmd_full);
+		free(path);
+		printError("Command not found...");
+	}
+	if (execve(path, cmd_full, envp) == -1)
+	{
+		ft_split_free(cmd_full);
+		free (path);
+		printError("Problem executing the command.");
+	}
+}
+
+void	childProcess(int infile, char *cmd1, int *fd, char **envp)
+{
+	close(fd[0]);
+	dup2(infile, STDIN_FILENO);
+	dup2(fd[1], STDOUT_FILENO);
+	executeIt(cmd1, envp);
+	return ;
+}
+
+void    pipexMain(int infile, int outfile, char *cmd1, char *cmd2, char **envp)
+{
+	int	fd[2];
+	int	pid;
+
+	if (pipe(fd) == -1)
+		exitError();
+	pid = fork();
+	if (pid == -1)
+		exitError();
+	if (pid == 0)
+		childProcess(infile, cmd1, fd, envp);
+	wait(0);
+	close(fd[1]);
+	dup2(fd[0], STDIN_FILENO);
+	dup2(outfile, STDOUT_FILENO);
+	executeIt(cmd2, envp);
+	return ;
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	int		infile;
+	int		outfile;
+	int		envp_check;
+	char	**real_envp;
+
+	real_envp = NULL;
+	envp_check = checkEnvp(envp);
+	if (envp_check)
+		real_envp = getRealEnvp(envp);
+	if (argc == 5 && envp_check)
+	{
+		infile = open(argv[1], O_RDONLY);
+		outfile = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0777);
+		if (infile < 0 || outfile < 0)
+			exitError();
+		pipexMain(infile, outfile, argv[2], argv[3], real_envp);
+	}
+	else if (!envp_check)
+		printError("No PATHS found for the command binaries...");
+	else if (argc != 5)
+		printError("Wrong number of arguments, correct usage of the program: './pipex infile cmd1 cmd2 outfile'");
+	else
+		printError("This error is not supposed to happen.");
+	if (real_envp)
+		ft_split_free(real_envp);
 }

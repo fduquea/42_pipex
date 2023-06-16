@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 11:28:57 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/05/29 11:48:09 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/16 13:36:17 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 #include "libft.h"
 
-size_t	ft_strlen_2(char **s)
+size_t	ft_strlen_2d(char **s)
 {
 	size_t	l;
 

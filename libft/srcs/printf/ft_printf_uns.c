@@ -6,14 +6,14 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 11:43:02 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/05/02 11:46:33 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/16 13:35:37 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 #include "libft.h"
 
-int	ft_chrnum(long n)
+int	ft_chrnum_uns(long n)
 {
 	int	i;
 
@@ -32,7 +32,7 @@ int	ft_chrnum(long n)
 	return (i);
 }
 
-char	*returners(long abs_n, int charnum, char *dest, int i)
+char	*returners_uns(long abs_n, int charnum, char *dest, int i)
 {
 	while (charnum > i)
 	{
@@ -61,7 +61,7 @@ char	*ft_uns_itoa(unsigned int n)
 
 	abs_n = n;
 	i = 0;
-	charnum = ft_chrnum(abs_n);
+	charnum = ft_chrnum_uns(abs_n);
 	j = charnum;
 	dest = malloc(sizeof(char) * charnum + 1);
 	if (!dest)
@@ -72,7 +72,7 @@ char	*ft_uns_itoa(unsigned int n)
 		i = 1;
 		abs_n = -abs_n;
 	}
-	dest = returners(abs_n, charnum, dest, i);
+	dest = returners_uns(abs_n, charnum, dest, i);
 	dest[j] = '\0';
 	return (dest);
 }
