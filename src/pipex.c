@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/16 13:52:37 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/21 09:56:08 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,19 +375,19 @@ Step to step:
 
 */
 
-void	exitError(void)
+void	func_exit_error(void)
 {
 	perror("Error");
 	exit(1);
 }
 
-void	printError(char *str)
+void	func_print_error(char *str)
 {
 	ft_printf("Error: %s\n", str);
 	exit(1);
 }
 
-int	checkEnvp(char **envp)
+int	func_check_envp(char **envp)
 {
 	int	i;
 
@@ -401,7 +401,7 @@ int	checkEnvp(char **envp)
 	return (0);
 }
 
-char	**getRealEnvp(char **envp)
+char	**func_get_paths(char **envp)
 {
 	int		i;
 	char	**res;
@@ -420,7 +420,7 @@ char	**getRealEnvp(char **envp)
 
 }
 
-char	*getPath(char *cmd, char **envp)
+char	*func_get_path(char *cmd, char **envp)
 {
 	char *possible_path;
 	int	i;
@@ -436,7 +436,7 @@ char	*getPath(char *cmd, char **envp)
 	return (NULL);
 }
 
-void	executeIt(char *cmd, char **envp)
+void	func_execute_comm(char *cmd, char **envp)
 {
 	char **cmd_full;
 	char *path;
@@ -457,7 +457,7 @@ void	executeIt(char *cmd, char **envp)
 	}
 }
 
-void	childProcess(int infile, char *cmd1, int *fd, char **envp)
+void	func_child_process(int infile, char *cmd1, int *fd, char **envp)
 {
 	close(fd[0]);
 	dup2(infile, STDIN_FILENO);
@@ -466,7 +466,7 @@ void	childProcess(int infile, char *cmd1, int *fd, char **envp)
 	return ;
 }
 
-void    pipexMain(int infile, int outfile, char *cmd1, char *cmd2, char **envp)
+void    func_pipex_main(int infile, int outfile, char *cmd1, char *cmd2, char **envp)
 {
 	int	fd[2];
 	int	pid;
