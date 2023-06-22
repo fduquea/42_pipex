@@ -6,22 +6,22 @@
 #    By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/14 13:05:51 by fduque-a          #+#    #+#              #
-#    Updated: 2023/06/16 13:30:34 by fduque-a         ###   ########.fr        #
+#    Updated: 2023/06/22 15:21:54 by fduque-a         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = pipex
 
-SRC = src/pipex.c
+SRC = pipex.c
 
 OBJS = ${SRC:.c=.o}
 
 CC = cc
 RM = rm -f
 CFLAGS = -Wall -Wextra -Werror -g
-INCLUDE = -I include
+INCLUDE = -I .
 MAKE = make -C
-LIBFT_PATH = libft
+LIBFT_PATH = libft_curr
 LIBFT = -L ${LIBFT_PATH} -lft
 
 #valgrind --leak-check=full --trace-children=yes
