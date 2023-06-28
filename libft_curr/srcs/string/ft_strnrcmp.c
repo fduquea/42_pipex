@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 11:37:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/21 12:46:16 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/28 17:30:41 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,20 @@
 
 int	ft_strnrcmp(char *s1, char *s2, size_t n)
 {
-	size_t	i;
-	size_t	j;
+	int	i;
+	int	j;
 
 	if (n == 0)
 		return (0);
 	i = ft_strlen(s1);
 	j = ft_strlen(s2);
-	while (s1[--i] == s2[--j] && i >= 0 && j >= 0)
+	while (s1[i] == s2[j] && i >= 0 && j >= 0)
 	{
 		n--;
 		if (n == 0)
 			return (0);
+		i--;
+		j--;
 	}
 	return ((unsigned char)(s1[i]) - (unsigned char)(s2[j]));
 }

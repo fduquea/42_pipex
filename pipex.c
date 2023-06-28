@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/22 15:30:34 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/28 21:17:12 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,35 @@ I need to use waitpid to wait for the child process to finish before starting th
 
 #include "pipex.h"
 
+// build the path to the command binary
+char *func_build_path(char *envp, char *command)
+{
+	char	*path;
 
+	path = ft_strjoin(envp, "/");
+	path = ft_strjoin(path, command);
+	return (path);
+}
+
+// get the command binary from envp
+char	*func_get_path(char *comm, char **envp)
+{
+	int		i;
+	char	*path;
+
+	i = 0;
+	while (envp[i])
+	{
+		path = func_build_path(envp[i], comm);
+		if (access(path, F_OK) == 0)
+			return (path);
+		free(path);
+		i++;
+	}
+	return (NULL);
+}
+
+// Execute the command with execve, passing the command and the necessary arguments.
 void	func_run_command(char *command, char **envp)
 {
 	char	*path;
@@ -99,34 +127,6 @@ int	func_pipex(int infile, int outfile, char **envp, char **argv)
 	return (0);
 }
 
-// build the path to the command binary
-char *func_build_path(char *envp, char *command)
-{
-	char	*path;
-
-	path = ft_strjoin(envp, "/");
-	path = ft_strjoin(path, command);
-	return (path);
-}
-
-// get the command binary from envp
-char	*func_get_path(char *comm, char **envp)
-{
-	int		i;
-	char	*path;
-
-	i = 0;
-	while (envp[i])
-	{
-		path = func_build_path(envp[i], comm);
-		if (access(path, F_OK) == 0)
-			return (path);
-		free(path);
-		i++;
-	}
-	return (NULL);
-}
-
 // make envp become a char** only containing the PATHS
 // find the "PATH=" string in envp
 // use ft_split to divide all the paths
@@ -153,15 +153,19 @@ char **func_get_real_envp(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int		i;
-	int		infile;
-	int		outfile;
+	// int		infile;
+	// int		outfile;
 
-	if (argc < 4)
+	// if (argc < 4)
+	// 	return (1);
+	if (argc == 1)
 		return (1);
-	i = 0;
 	envp = func_get_real_envp(envp);
-	infile = open(argv[1], O_RDONLY);
-	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	func_pipex(infile, outfile, envp, argv + 1);
+	// infile = open(argv[1], O_RDONLY);
+	// outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	// func_pipex(infile, outfile, envp, argv + 1);
+	char *path = func_get_path(argv[1], envp);
+	ft_printf("%s\n", path);
+	execve(path, argv + 2, envp);
+	free(envp);
 }
