@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/29 12:44:41 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/29 12:59:18 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ void	func_run_command(char *command, char **envp)
 	char	*path;
 	char	**args;
 
+	ft_printf("Line 74.\n");
 	args = ft_split(command, ' ');
 	path = func_get_path(args[0], envp);
 	execve(path, args, envp);
@@ -88,6 +89,7 @@ void func_child_process(int *pipefd, int infile, char **envp, char *argv, int i)
 {
 	if (i == 0)
 	{
+		ft_printf("Line 92.\n");
 		dup2(infile, STDIN_FILENO);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
@@ -95,6 +97,7 @@ void func_child_process(int *pipefd, int infile, char **envp, char *argv, int i)
 	}
 	else
 	{
+		ft_printf("Line 100.\n");
 		dup2(pipefd[0], STDIN_FILENO);
 		dup2(pipefd[1], STDOUT_FILENO);
 		func_run_command(argv, envp);
@@ -109,9 +112,9 @@ void func_child_process(int *pipefd, int infile, char **envp, char *argv, int i)
 //         Execute the first shell command using execve, passing the command and the necessary arguments.
 void func_parent_process(int *pipefd, int outfile, char **envp, char *argv)
 {
+	ft_printf("Line 115.\n");
 	dup2(outfile, STDOUT_FILENO);
 	dup2(pipefd[0], STDIN_FILENO);
-	close(pipefd[1]);
 	func_run_command(argv, envp);
 	ft_printf("This should not print.Parent.\n");
 }
@@ -129,16 +132,22 @@ int	func_pipex(int infile, int outfile, char **envp, char **argv)
 		return (1); 
 	while (argv[i + 3] != NULL)
 	{
+		ft_printf("Line 136.\n");
 		pid = fork();
 		if (pid == -1)
 			return (1);
 		if (pid == 0)
+		{
 			func_child_process(pipefd, infile, envp, argv[i + 1], i);
+			exit(0);
+		}
 		waitpid(pid, NULL, 0);
 		i++;
 	}
+	close(pipefd[1]);
 	if (i == 0)
 	{
+		ft_printf("Line 147.\n");
 		dup2(outfile, STDOUT_FILENO);
 		dup2(infile, STDIN_FILENO);
 		close(pipefd[1]);
@@ -146,7 +155,10 @@ int	func_pipex(int infile, int outfile, char **envp, char **argv)
 		func_run_command(argv[1], envp);
 	}
 	else
+	{
+		ft_printf("Line 156.\n");
 		func_parent_process(pipefd, outfile, envp, argv[i + 1]);
+	}
 	return (0);
 }
 
