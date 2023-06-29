@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/29 12:28:28 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/29 12:44:41 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,15 +91,12 @@ void func_child_process(int *pipefd, int infile, char **envp, char *argv, int i)
 		dup2(infile, STDIN_FILENO);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[0]);
-		close(pipefd[1]);
 		func_run_command(argv, envp);
 	}
 	else
 	{
 		dup2(pipefd[0], STDIN_FILENO);
 		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
 		func_run_command(argv, envp);
 	}
 	ft_printf("This should not print.Child.\n");
@@ -115,7 +112,6 @@ void func_parent_process(int *pipefd, int outfile, char **envp, char *argv)
 	dup2(outfile, STDOUT_FILENO);
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[1]);
-	close(pipefd[0]);
 	func_run_command(argv, envp);
 	ft_printf("This should not print.Parent.\n");
 }
@@ -192,11 +188,5 @@ int	main(int argc, char **argv, char **envp)
 	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	func_pipex(infile, outfile, real_envp, argv + 1);
 	free(real_envp);
-	// int i = 0;
-	// while (argv[i] != NULL)
-	// {
-	// 	ft_printf("%s\n", argv[i]);
-	// 	i++;
-	// }
 	return (0);
 }
