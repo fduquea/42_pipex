@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/28 21:17:12 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/29 12:28:28 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,12 +71,12 @@ void	func_run_command(char *command, char **envp)
 	char	*path;
 	char	**args;
 
-	path = func_get_path(command, envp);
-	args = ft_split(path, ' ');
+	args = ft_split(command, ' ');
+	path = func_get_path(args[0], envp);
 	execve(path, args, envp);
 }
 
-// In the child process:
+// In the first child process:
 // Close the unused end of the pipe.
 // Use dup2 to duplicate the read end of the pipe onto the standard input file descriptor (STDIN_FILENO).
 // Close the read end of the pipe.
@@ -84,25 +84,40 @@ void	func_run_command(char *command, char **envp)
 // Use dup2 to duplicate the write end of the pipe onto the standard output file descriptor (STDOUT_FILENO).
 // Close the write end of the pipe.
 // Execute the second shell command using execve, passing the command and the necessary arguments.
-void func_child_process(int *pipefd, int infile, char **envp, char **argv)
+void func_child_process(int *pipefd, int infile, char **envp, char *argv, int i)
 {
-	dup2(infile, STDIN_FILENO);
-	dup2(pipefd[1], STDOUT_FILENO);
-	close(pipefd[0]);
-	func_run_command(argv[1], envp);
+	if (i == 0)
+	{
+		dup2(infile, STDIN_FILENO);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		func_run_command(argv, envp);
+	}
+	else
+	{
+		dup2(pipefd[0], STDIN_FILENO);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		func_run_command(argv, envp);
+	}
+	ft_printf("This should not print.Child.\n");
 }
 
-// In the parent process:
+// In the second process:
 //         Close the write end of the pipe.
 //         Use dup2 to duplicate the read end of the pipe onto the standard input file descriptor (STDIN_FILENO).
 //         Close the read end of the pipe.
 //         Execute the first shell command using execve, passing the command and the necessary arguments.
-void func_main_process(int *pipefd, int outfile, char **envp, char **argv)
+void func_parent_process(int *pipefd, int outfile, char **envp, char *argv)
 {
 	dup2(outfile, STDOUT_FILENO);
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[1]);
-	func_run_command(argv[2], envp);	
+	close(pipefd[0]);
+	func_run_command(argv, envp);
+	ft_printf("This should not print.Parent.\n");
 }
 
 // Create a pipe using the pipe function to establish communication between the parent process and the child process.
@@ -111,19 +126,31 @@ int	func_pipex(int infile, int outfile, char **envp, char **argv)
 {
 	int	pid;
 	int	pipefd[2];
+	int	i;
 
+	i = 0;
 	if (pipe(pipefd) == -1)
-		return (1);
-	pid = fork();
-	if (pid == -1)
-		return (1);
-	if (pid == 0)
-		func_child_process(pipefd, outfile, envp, argv);
-	else
+		return (1); 
+	while (argv[i + 3] != NULL)
 	{
+		pid = fork();
+		if (pid == -1)
+			return (1);
+		if (pid == 0)
+			func_child_process(pipefd, infile, envp, argv[i + 1], i);
 		waitpid(pid, NULL, 0);
-		func_main_process(pipefd, infile, envp, argv);
+		i++;
 	}
+	if (i == 0)
+	{
+		dup2(outfile, STDOUT_FILENO);
+		dup2(infile, STDIN_FILENO);
+		close(pipefd[1]);
+		close(pipefd[0]);
+		func_run_command(argv[1], envp);
+	}
+	else
+		func_parent_process(pipefd, outfile, envp, argv[i + 1]);
 	return (0);
 }
 
@@ -145,27 +172,31 @@ char **func_get_real_envp(char **envp)
 			path = ft_substr(envp[i], 5, ft_strlen(envp[i]));
 			real_envp = ft_split(path, ':');
 			free(path);
+			return (real_envp);
 		}
 		i++;
 	}
-	return (real_envp);
+	return (NULL);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	// int		infile;
-	// int		outfile;
+	int		infile;
+	int		outfile;
+	char	**real_envp;
 
-	// if (argc < 4)
-	// 	return (1);
 	if (argc == 1)
 		return (1);
-	envp = func_get_real_envp(envp);
-	// infile = open(argv[1], O_RDONLY);
-	// outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	// func_pipex(infile, outfile, envp, argv + 1);
-	char *path = func_get_path(argv[1], envp);
-	ft_printf("%s\n", path);
-	execve(path, argv + 2, envp);
-	free(envp);
+	real_envp = func_get_real_envp(envp);
+	infile = open(argv[1], O_RDONLY);
+	outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	func_pipex(infile, outfile, real_envp, argv + 1);
+	free(real_envp);
+	// int i = 0;
+	// while (argv[i] != NULL)
+	// {
+	// 	ft_printf("%s\n", argv[i]);
+	// 	i++;
+	// }
+	return (0);
 }
