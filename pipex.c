@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/29 15:53:59 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/06/30 15:54:47 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,26 +57,7 @@ void	func_run_command(char *command, char **envp)
 // Use fork to create a child process.
 void	func_pipex(int infile, char **envp, char *comm)
 {
-	pid_t	pid;
-	int		pipefd[2];
 
-	pipe(pipefd);
-	pid = fork();
-	if (pid)
-	{
-		close(pipefd[1]);
-		dup2(pipefd[0], STDIN_FILENO);
-		waitpid(pid, NULL, 0);
-	}
-	else
-	{
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		if (infile == STDIN_FILENO)
-			ft_printf("Add error message here.func_pipex.\n");
-		else
-			func_run_command(comm, envp);
-	}
 }
 
 // make envp become a char** only containing the PATHS
@@ -107,28 +88,14 @@ char **func_get_real_envp(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int		infile;
-	int		outfile;
-	char	**real_envp;
-	int		i;
+	int	pid;
+	int	pipefd[2];
 
-	if (argc > 4)
+	if (argc > 5)
 	{
-		i = 0;
-		real_envp = func_get_real_envp(envp);
-		infile = open(argv[1], O_RDONLY);
-		outfile = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-		dup2(infile, STDIN_FILENO);
-		dup2(outfile, STDOUT_FILENO);
-		func_run_command(argv[2], real_envp);
-		while (i + 3 < argc - 2)
-		{
-			func_pipex(infile, real_envp, argv[i + 3]);
-			i++;
-		}
-		func_run_command(argv[i + 3], real_envp);
+
 	}
 	else
 		ft_printf("Add error message here.main.\n");
-	return (1);
+	
 }
