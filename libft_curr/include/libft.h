@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 11:03:31 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/21 13:07:17 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/03 21:50:11 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,7 @@ void		ft_putstr(char *s); //*
 void		ft_putendl(char *s); //*
 void		ft_putnbr(int n); //*
 void		ft_split_free(char **s); //*
+size_t		ft_strclen(const char *s, char c); //*
 
 /*
 ** ft_printf functions

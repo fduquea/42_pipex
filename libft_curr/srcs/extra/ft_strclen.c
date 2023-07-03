@@ -1,32 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlen_2d.c                                     :+:      :+:    :+:   */
+/*   ft_strclen.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/29 11:28:57 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/07/03 21:49:56 by fduque-a         ###   ########.fr       */
+/*   Created: 2023/07/03 21:13:07 by fduque-a          #+#    #+#             */
+/*   Updated: 2023/07/03 21:17:52 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /*
 ** LIBRARY: N/A
-** SYNOPSIS: find length of two dimensional array
+** SYNOPSIS: Find number of characters before a given character
 **
 ** DESCRIPTION:
-** 		The strlen_2() function computes the length of the two dimensional
-**		array s.
+** 		The ft_strclen() function computes the length of the string s,
+** 	but stops when there's the occurrence of the character c.
 */
 
 #include "libft.h"
 
-size_t	ft_strlen_2d(char **s)
+size_t	ft_strclen(const char *s, char c)
 {
-	size_t	l;
+	size_t	len;
 
-	l = 0;
-	while (s[l] != 0)
-		l++;
-	return (l);
+	len = 0;
+	while (s && s[len] != c && s[len])
+		len++;
+	return (len);
 }
