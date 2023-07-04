@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 12:30:00 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/05/29 12:31:55 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/04 12:11:13 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,15 +22,12 @@
 
 #include "libft.h"
 
-void	ft_split_free(char **s)
+void	ft_split_free(char **array)
 {
-	size_t	i;
+	int	i;
 
-	if (!s || !*s)
-		return ;
 	i = 0;
-	while (i < ft_strlen_2d(s))
-		free(s[i++]);
-	free(s);
-	*s = NULL;
+	while (array[i])
+		free(array[i++]);
+	free(array);
 }

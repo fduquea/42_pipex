@@ -6,13 +6,13 @@
 #    By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/14 13:05:51 by fduque-a          #+#    #+#              #
-#    Updated: 2023/06/22 15:21:54 by fduque-a         ###   ########.fr        #
+#    Updated: 2023/07/04 17:15:34 by fduque-a         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = pipex
 
-SRC = pipex.c
+SRC = pipex_bonus.c
 
 OBJS = ${SRC:.c=.o}
 

@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 17:46:36 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/06/21 12:47:52 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/04 12:12:36 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,61 +23,60 @@
 
 #include "libft.h"
 
-static int	ft_count_words(char const *s, char c)
+static int	count_strings(char const *s, char c)
 {
-	int	count;
-	int	i;
+	int		count;
+	int		i;
+	int		old_i;
 
-	count = 0;
 	i = 0;
-	while (s[i] != '\0')
+	count = 0;
+	while (s[i])
 	{
-		while (s[i] == c)
+		while (s[i])
+		{
+			if (s[i] != c)
+				break ;
 			i++;
-		if (s[i] != '\0')
+		}
+		old_i = i;
+		while (s[i])
+		{
+			if (s[i] == c)
+				break ;
+			i++;
+		}
+		if (old_i < i)
 			count++;
-		while (s[i] != '\0' && s[i] != c)
-			i++;
 	}
 	return (count);
 }
 
-static char	*ft_words(char const *s, int len)
-{
-	char	*dest;
-
-	dest = malloc((len + 1) * sizeof(char));
-	if (!dest)
-		return (NULL);
-	dest[len] = '\0';
-	return ((char *) ft_memcpy(dest, s, len));
-}
-
 char	**ft_split(char *s, char c)
 {
+	char	**ar;
 	int		i;
 	int		j;
-	char	**strings;
-	int		len;
 
-	strings = malloc((ft_count_words(s, c) + 1) * sizeof(char *));
-	if (!s || !(strings))
+	if (!s)
+		return (NULL);
+	ar = (char **)malloc(sizeof(char *) * (count_strings(s, c) + 1));
+	if (!ar)
 		return (NULL);
 	i = 0;
 	j = 0;
-	while (s[j])
+	while (s[i])
 	{
-		if (s[j] == c)
-			j++;
-		else
+		while (s[i] == c)
+			i++;
+		if (s[i])
 		{
-			len = 0;
-			while (s[j + len] && s[j + len] != c)
-				len++;
-			strings[i++] = ft_words(s + j, len);
-			j += len;
+			ar[j++] = ft_substr(s + i, 0, ft_strclen(s + i, c));
+			if (!ar[j - 1])
+				return (NULL);
+			i += ft_strlen(ar[j - 1]);
 		}
 	}
-	strings[i] = NULL;
-	return (strings);
+	ar[j] = NULL;
+	return (ar);
 }
