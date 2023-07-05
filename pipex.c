@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/07/04 17:16:34 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/05 16:04:51 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,6 @@ int	main(int argc, char **argv, char **envp)
 	if (argc == 5)
 		func_pipex(envp, argv, argc);
 	else
-		ft_printf("Usage:./pipex file1 cmd1 cmd2 file2\n");
+		ft_printf("Usage:./pipex infile cmd1 cmd2 outfile\n");
 	return (1);
 }

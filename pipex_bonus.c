@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/07/04 17:16:35 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/05 15:50:54 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,15 +149,13 @@ void	func_pipex(char **envp, char **argv, int argc, int i)
 	func_check(access(argv[argc - 1], W_OK), argv[argc - 1]);
 	dup2(fd_in, STDIN_FILENO);
 	dup2(fd_out, STDOUT_FILENO);
-	if (argc == 4)
-		func_run_command(argv[2], envp);
-	else
+	func_exec_command(argv[2 + i], envp);
+	while (argc - 5 - i > 0)
 	{
-		func_exec_command(argv[2], envp);
-		while (argc - 5 - i++ > 0)
-			func_exec_command(argv[3 + i], envp);
-		func_run_command(argv[argc - 2], envp);
+		func_exec_command(argv[3 + i], envp);
+		i++;
 	}
+	func_run_command(argv[argc - 2], envp);
 }
 
 void	func_here_doc(char *eof)
@@ -166,14 +164,13 @@ void	func_here_doc(char *eof)
 	int		fd_heredoc;
 
 	fd_heredoc = open("here_doc", O_RDWR | O_TRUNC | O_CREAT, 0777);
-	ft_printf("> ");
+	ft_printf("heredoc> ");
 	line = get_next_line(0);
-	while (line && (ft_strncmp(line, eof, ft_strlen(eof))
-			|| ft_strclen(line, '\n') != ft_strlen(eof)))
+	while (line && (ft_strncmp(line, eof, ft_strlen(eof)) || ft_strclen(line, '\n') != ft_strlen(eof)))
 	{
 		ft_putstr_fd(line, fd_heredoc);
 		free(line);
-		ft_printf("> ");
+		ft_printf("heredoc> ");
 		line = get_next_line(0);
 	}
 	free(line);
@@ -182,19 +179,25 @@ void	func_here_doc(char *eof)
 
 int	main(int argc, char **argv, char **envp)
 {
-	// int		heredoc;
+	int		heredoc;
 	int		i;
-	i = 0;
-	if (argc > 3)
+
+	heredoc = 0;
+	if (argc >= 5)
 	{
-		// real_envp = func_get_real_envp(envp);
-		// heredoc = (argc >= 6 && !ft_strncmp(argv[1], "here_doc", 8));
-		// if (heredoc)
-		// 	func_here_doc(argv[2]);
-		// i = 0 + heredoc;
+		if (argc >= 6 && !ft_strncmp(argv[1], "here_doc", 8))
+			heredoc = 1;
+		else if (!ft_strncmp(argv[1], "here_doc", 8))
+		{
+			ft_printf("Usage:./pipex 'infile'/'here_doc LIMITER' cmd1/x cmd2/x ... outfile\n");
+			return (1);
+		}
+		if (heredoc == 1)
+			func_here_doc(argv[2]);
+		i = 0 + heredoc;
 		func_pipex(envp, argv, argc, i);
 	}
 	else
-		ft_printf("Usage:./pipex file1 cmd1 cmd2 file2\n");
+		ft_printf("Usage:./pipex 'infile'/'here_doc LIMITER' cmd1/x cmd2/x ... outfile\n");
 	return (1);
 }
