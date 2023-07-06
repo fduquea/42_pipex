@@ -6,7 +6,7 @@
 #    By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/14 13:05:51 by fduque-a          #+#    #+#              #
-#    Updated: 2023/07/05 18:01:04 by fduque-a         ###   ########.fr        #
+#    Updated: 2023/07/06 15:01:56 by fduque-a         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,8 +21,8 @@ CYAN = \033[0;96m
 WHITE = \033[0;97m
 
 NAME = pipex
-SRC = pipex.c
-SRC_BONUS = pipex_bonus.c
+SRC = pipex.c pipex_utils.c
+SRC_BONUS = pipex_bonus.c pipex_utils_bonus.c
 OBJS = ${SRC:.c=.o}
 OBJS_BONUS = ${SRC_BONUS:.c=.o}
 CC = cc
@@ -76,117 +76,310 @@ re: fclean all
 	@ echo "$(GRAY)| $(RED)X Cleaned X $(YELLOW)and $(GREEN)! Rebuilt ! $(YELLOW)everything for pipex $(GRAY)|$(DEF_COLOR)"
 	@ echo "$(GRAY)*--------------------------------------------------*$(DEF_COLOR)"
 
-tests: test_norm
-	@echo "\n\n$(GREEN)------WITHOUT FILE PERMISSIONS------$(DEF_COLOR)\n"
-	@echo "a a a" > no_permissions.txt
-	@chmod 000 no_permissions.txt
-	@echo "./pipex no_permissions.txt \"grep a\" \"wc -w\" outfile.txt"
-	@echo "\n Shell result:"
-	@< no_permissions.txt grep a | wc -w > outfile.txt; echo "Error: $$?"
-	@rm -f no_permissions.txt outfile.txt
-	@echo "a a a" > no_permissions.txt
-	@chmod 000 no_permissions.txt
-	@echo "\n Your result:"
-	@./pipex no_permissions.txt "grep a" "wc -w" outfile.txt; echo "Error: $$?"
-	@echo "\n\n$(GREEN)------WITH FILE PERMISSIONS------$(DEF_COLOR)\n"
-	@echo "a a a" > permissions.txt
-	@chmod 777 permissions.txt
-	@echo "./pipex permissions.txt \"grep a\" \"wc -w\" outfile.txt"
-	@echo "\n Shell result:"
-	@< permissions.txt grep a | wc -w > outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f permissions.txt outfile.txt
-	@echo "a a a" > permissions.txt
-	@chmod 777 permissions.txt
-	@echo "\n Your result:"
-	@./pipex permissions.txt "grep a" "wc -w" outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f permissions.txt outfile.txt
-	@echo "\n\n$(GREEN)------TEST N1------$(DEF_COLOR)\n"
-	@echo "./pipex infile.txt \"cat\" \"wc -l\" outfile.txt"
-	@echo "\n$(YELLOW)WITHOUT INFILE$(DEF_COLOR)\n"
-	@echo "Shell result:"
-	@< infile.txt cat | wc -l > outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@echo "Your result:"
-	@./pipex infile.txt "cat" "wc -l" outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@echo "\n$(YELLOW)WITH INFILE$(DEF_COLOR)\n"
-	@echo "ola" > infile.txt
-	@echo "Shell result:"
-	@< infile.txt cat | wc -l > outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt
-	@echo "Your result:"
-	@./pipex infile.txt "cat" "wc -l" outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt
-	@echo "\n\n$(GREEN)------TEST N2------$(DEF_COLOR)\n"
-	@echo "./pipex infile.txt \"grep a1\" \"wc -w\" outfile.txt\n"
-	@echo "Shell result:"
-	@< infile.txt grep a1 | wc -w > outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt
-	@echo "Your result:"
-	@./pipex infile.txt "grep a1" "wc -w" outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt infile.txt
-	@echo "\n\n$(GREEN)------TEST N3------$(DEF_COLOR)\n"
-	@echo "./pipex infile.txt \"grep a1\" \"LOL -w\" outfile.txt\n"
-	@echo "Shell result:"
-	@< infile.txt grep a1 | LOL -w > outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt
-	@echo "Your result:"
-	@./pipex infile.txt "grep a1" "LOL -w" outfile.txt; echo "Error: $$?"
-	@cat outfile.txt | cat -e
-	@rm -f outfile.txt no_permissions.txt
+tests: test_norm test_mandatory test_m_basic test_m_arguments test_m_file_permissions test_m_no_infile test_m_bad_command test_m_no_rights_and_bad_command test_m_no_file_and_bad_command
 
 # check the norm
 test_norm:
-	@rm -f infile infile.txt outfile outfile.txt no_permissions.txt
-	@echo "\n\n$(GREEN)------NORM ERRORS------$(DEF_COLOR)"
-	@norminette | grep Error
+	@echo "\n\n$(YELLOW)------NORM ERRORS------$(DEF_COLOR)"
+	@norminette
+
+# test the mandatory part 
+test_mandatory:
+	@echo "\n\n$(BLUE)------MANDATORY PART------$(DEF_COLOR)"
 
 # test the mandatory part with existing infile, good rights and existing commands
 test_m_basic:
+	@echo "\n$(GREEN)BASIC TESTS$(DEF_COLOR)\n"
+	@echo "a a a" > infile.txt
+	@chmod 777 infile.txt
+	@echo "\nInput file content:"
+	@cat infile.txt | cat -e
+	@echo "\n$(CYAN)Test 1 = ./pipex infile.txt \"grep a\" \"wc -w\" outfile.txt $(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt grep a | wc -w > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "grep a" "wc -w" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+    	echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt
+	@echo "\n$(CYAN)Test 2 = ./pipex infile.txt \"cat -e\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt cat -e | cat -e > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt
+	@echo "\n$(CYAN)Test 3 = ./pipex infile.txt \"grep a\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt grep a | cat -e > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "grep a" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt infile.txt
+	@echo "Line1\nLine2\nLine3\nLine4" > infile.txt
+	@chmod 777 infile.txt
+	@echo "\nInput file content:"
+	@cat infile.txt | cat -e
+	@echo "\n$(CYAN)Test 4 = ./pipex infile.txt \"grep Line\" \"wc -w\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt grep Line | wc -w > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "grep Line" "wc -w" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt
+	@echo "\n$(CYAN)Test 5 = ./pipex infile.txt \"cat -e\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt cat -e | cat -e > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt
+	@echo "\n$(CYAN)Test 6 = ./pipex infile.txt \"grep Line\" \"cat -e\" outfile.txt$(DEF_COLOR))"
+	@echo "\nShell exit code:"
+	@< infile.txt grep Line | cat -e > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "grep Line" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile1.txt outfile2.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt infile.txt
+	@echo "\n$(YELLOW)All basic tests done!$(DEF_COLOR)\n"
 
 # test that mandatory only takes 4 arguments (argc = 5)
 test_m_arguments:
+	@echo "\n\n$(GREEN)------ARGUMENT CHECK------$(DEF_COLOR)"
+	@echo "a a a" > infile.txt
+	@echo "\n$(CYAN)5 arguments\nTest 1 = ./pipex infile.txt \"cat -e\" \"cat -e\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "cat -e" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@rm -f outfile2.txt
+	@echo "\n$(CYAN)3 arguments\nTest 2 = ./pipex infile.txt \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@rm -f outfile2.txt infile.txt
+	@echo "\n$(YELLOW)Argument tests done!$(DEF_COLOR)\n"
+	
 
 # test the mandatory part with existing infile, bad rights and existing commands
 test_m_file_permissions:
+	@rm -f outfile1.txt outfile2.txt outfile3.txt outfile4.txt no_permissions.txt infile.txt outfile.txt
+	@echo "\n\n$(GREEN)------BAD INFILE RIGHTS------$(DEF_COLOR)"
+	@echo "a a a" > no_permissions.txt
+	@chmod 000 no_permissions.txt
+	@echo "\n$(CYAN)Test = ./pipex no_permissions.txt \"cat -e\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< no_permissions.txt cat -e | cat -e > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex no_permissions.txt "cat -e" "cat -e" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt no_permissions.txt outfile3.txt outfile4.txt
+	@echo "\n$(YELLOW)Bad infile rights tests done!$(DEF_COLOR)\n"
 
-# test the mandatory part with no infile, good rights and existing commands
+# test the mandatory part with no infile and existing commands
 test_m_no_infile:
+	@echo "\n\n$(GREEN)------NO INFILE------$(DEF_COLOR)"
+	@echo "\n$(CYAN)Test = ./pipex \"cat -e\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt cat -e | cat -e > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "cat -e" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Output files are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Output files are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt outfile3.txt outfile4.txt
+	@echo "\n$(YELLOW)No infile tests done!$(DEF_COLOR)\n"
 
 # test the mandatory part with existing infile, good rights and bad commands
 test_m_bad_command:
+	@echo "\n\n$(GREEN)------BAD COMMAND------$(DEF_COLOR)"
+	@echo "a a a" > infile.txt
+	@chmod 777 infile.txt
+	@echo "\n$(CYAN)Test 1 = ./pipex infile.txt \"cat -e\" \"John Cena\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt cat -e | John Cena > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "John Cena" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt
+	@echo "\n$(CYAN)Test 2 = ./pipex infile.txt \"asdf\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt asdf | cat -e > outfile1.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "asdf" "cat -e" outfile2.txt; echo "$$?"
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt infile.txt outfile.txt outfile3.txt outfile4.txt
+	@echo "\n$(YELLOW)Bad command tests done!$(DEF_COLOR)\n"
 
-# test the mandatory part with no infile, bad infile rights and bad commands
+# test the mandatory part with with infile, bad infile rights and bad commands
 test_m_no_rights_and_bad_command:
+	@echo "\n\n$(GREEN)------BAD INFILE RIGHTS AND BAD COMMAND------$(DEF_COLOR)"
+	@echo "a a a" > no_permissions.txt
+	@chmod 000 no_permissions.txt
+	@echo "\n$(CYAN)Test 1 = ./pipex no_permissions.txt \"cat -e\" \"John Cena\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< no_permissions.txt cat -e | John Cena > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex no_permissions.txt "cat -e" "John Cena" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt no_permissions.txt outfile3.txt outfile4.txt
+	@echo "\n$(CYAN)Test 2 = ./pipex no_permissions.txt \"John Cena\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< no_permissions.txt John Cena | cat -e > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex no_permissions.txt "John Cena" "cat -e" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt no_permissions.txt outfile3.txt outfile4.txt
+	@echo "\n$(YELLOW)Bad infile rights and bad command tests done!$(DEF_COLOR)\n"
 
-# test the mandatory part with no infile, bad rights and bad commands
+# test the mandatory part with no infile and bad commands
 test_m_no_file_and_bad_command:
+	@echo "\n\n$(GREEN)------NO INFILE AND BAD COMMAND------$(DEF_COLOR)"
+	@echo "\n$(CYAN)Test 1 = ./pipex infile.txt \"John Cena\" \"cat -e\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt John Cena | cat -e > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "John Cena" "cat -e" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt outfile3.txt outfile4.txt
+	@echo "\n$(CYAN)Test 2 = ./pipex infile.txt \"cat -e\" \"John Cena\" outfile.txt$(DEF_COLOR)"
+	@echo "\nShell exit code:"
+	@< infile.txt cat -e | John Cena > outfile1.txt; echo "$$?" >> outfile3.txt
+	@cat outfile3.txt
+	@echo "Output file content:"
+	@cat outfile1.txt | cat -e
+	@echo "----\nYour exit code:"
+	@./pipex infile.txt "cat -e" "John Cena" outfile2.txt; echo "$$?" >> outfile4.txt
+	@cat outfile4.txt
+	@echo "Output file content:"
+	@cat outfile2.txt | cat -e
+	@if diff -q outfile3.txt outfile4.txt > /dev/null ; then \
+   		echo "\n$(GREEN)Result: Exit codes are equal$(DEF_COLOR)"; \
+	else \
+		echo "\n$(RED)Result: Exit codes are not equal$(DEF_COLOR)"; \
+	fi
+	@rm -f outfile1.txt outfile2.txt outfile3.txt outfile4.txt
+	@echo "\n$(YELLOW)No infile and bad command tests done!$(DEF_COLOR)\n"
 
 # create the bonus part
-test_bonus: bonus
+#test_bonus: bonus
+#	@echo "\n\n$(BLUE)------BONUS PART------$(DEF_COLOR)"	
 
-# test the bonus part with existing infile, good rights and existing commands
-test_b_basic:
+# test the bonus part
+#test_b_tests: 
 
-test_b_arguments:
-
-test_b_file_permissions:
-
-test_b_no_infile:
-
-test_b_bad_command:
-
-test_b_no_file_and_bad_command:
-
-test_b_alot_arguments:
-
-test_b_heredoc:
-
-.PHONY: all clean fclean re bonus unit_tests
+.PHONY: all clean fclean re bonus tests
