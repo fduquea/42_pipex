@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/07/06 14:55:38 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/06 18:08:39 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ int	main(int argc, char **argv, char **envp)
 	{
 		if (argc >= 6 && !ft_strncmp(argv[1], "here_doc", 8))
 			heredoc = 1;
-		else if (!ft_strncmp(argv[1], "here_doc", 8))
+		else if (!ft_strncmp(argv[1], "here_doc\0", 9))
 		{
 			ft_printf("Usage:./pipex 'infile'/'here_doc "\
 				"LIMITER' cmd1/x cmd2/x ... outfile\n");
