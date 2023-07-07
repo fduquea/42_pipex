@@ -6,7 +6,7 @@
 /*   By: fduque-a <fduque-a@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/14 13:05:29 by fduque-a          #+#    #+#             */
-/*   Updated: 2023/07/06 18:08:39 by fduque-a         ###   ########.fr       */
+/*   Updated: 2023/07/07 18:10:40 by fduque-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ static void	func_here_doc(char *eof)
 	fd_heredoc = open("here_doc", O_RDWR | O_TRUNC | O_CREAT, 0777);
 	ft_printf("heredoc> ");
 	line = get_next_line(0);
-	while (line && (ft_strncmp(line, eof, ft_strlen(eof)) || 
-			ft_strclen(line, '\n') != ft_strlen(eof)))
+	while (line && (ft_strncmp(line, eof, ft_strlen(eof))
+			|| ft_strclen(line, '\n') != ft_strlen(eof)))
 	{
 		ft_putstr_fd(line, fd_heredoc);
 		free(line);
